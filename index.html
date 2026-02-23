@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AI Image Tool</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 40px;
+      text-align: center;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+
+    img {
+      max-width: 100%;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 10px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Background Remover</h2>
+
+    <input type="file" id="file" accept="image/*" />
+    <br>
+
+    <button onclick="removeBg()">Remove Background</button>
+
+    <div class="loading" id="loading">Processing...</div>
+
+    <img id="result" />
+  </div>
+
+  <script>
+    async function removeBg() {
+      const fileInput = document.getElementById("file");
+      const loading = document.getElementById("loading");
+      const result = document.getElementById("result");
+
+      if (!fileInput.files.length) {
+        alert("Please select an image");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+
+      loading.style.display = "block";
+      result.src = "";
+
+      try {
+        const response = await fetch("/remove-bg", {
+          method: "POST",
+          body: formData
+        });
+
+        if (!response.ok) {
+          throw new Error("Server error");
+        }
+
+        const blob = await response.blob();
+        result.src = URL.createObjectURL(blob);
+
+      } catch (err) {
+        alert("Something went wrong. Try again.");
+      } finally {
+        loading.style.display = "none";
+      }
+    }
+  </script>
+
+</body>
+</html>
